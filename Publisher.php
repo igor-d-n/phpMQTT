@@ -36,7 +36,9 @@ class Publisher
     
     function __destruct()
     {
-        $this->close();
+        if($this->connected){
+            $this->close();
+        }
     }
 
     /**
@@ -163,20 +165,15 @@ class Publisher
         return $string;
     }
 
-    // sends a proper disconnect
-    protected function disconnect()
+    // sends a proper disconnect, then closes the socket
+    public function close()
     {
         $head = " ";
         $head{0} = chr(0xe0);
         $head{1} = chr(0x00);
         fwrite($this->socket, $head, 2);
-    }
-
-    // sends a proper disconnect, then closes the socket
-    public function close()
-    {
-        $this->disconnect();
         stream_socket_shutdown($this->socket, STREAM_SHUT_WR);
+        $this->connected = false;
     }
 
     // publishes $content on a $topic
