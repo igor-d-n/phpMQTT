@@ -1,7 +1,7 @@
 {
     "name": "igor-d-n/phpmqtt",
     "description": "Simple MQTT Class",
-    "license": "BSD",
+    "license": "0BSD",
     "type": "library",
     "authors": [
         {
