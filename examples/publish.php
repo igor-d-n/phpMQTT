@@ -1,6 +1,5 @@
 <?php
-require "../Publisher.php";
-require "../ConnectException.php";
+require '../vendor/autoload.php';
 
 use SimpleMQTT\Publisher;
 use SimpleMQTT\ConnectException;

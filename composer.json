@@ -4,7 +4,10 @@
     "license": "BSD",
     "type": "library",
     "authors": [
-
+        {
+            "name": "Igor D-n",
+            "email": "igor.denyagin@gmail.com"
+        }
     ],
     "minimum-stability": "dev",
     "require": {
@@ -12,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "SimpleMQTT\\": "./"
+            "SimpleMQTT\\": "src/"
         }
     }
 }
