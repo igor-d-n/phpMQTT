@@ -10,16 +10,17 @@ namespace SimpleMQTT;
 class Publisher
 {
 
-    protected $socket;            /* holds the socket	*/
-    protected $msgId = 1;            /* counter for message id */
-    protected $keepAlive = 10;        /* default keepalive timer */
-    protected $debug = false;        /* should output debug messages */
-    protected $address;            /* broker address */
-    protected $port;                /* broker port */
-    protected $clientId;            /* client id sent to broker */
-    protected $will;                /* stores the will of the client */
-    protected $username;            /* stores username */
-    protected $password;            /* stores password */
+    protected $socket;            // holds the socket	
+    protected $msgId = 1;            // counter for message id 
+    protected $keepAlive = 10;        // default keepalive timer 
+    protected $socketTimeout = 5;    // timeout for waiting for socket tcp connection
+    protected $debug = false;        // should output debug messages 
+    protected $address;            // broker address 
+    protected $port;                // broker port
+    protected $clientId;            // client id sent to broker 
+    protected $will;                // stores the will of the client 
+    protected $username;            // stores username 
+    protected $password;            // stores password 
     protected $connected = false;
     protected $cafile;
 
@@ -59,14 +60,16 @@ class Publisher
                 "verify_peer_name" => true,
                 "cafile" => $this->cafile
             ]]);
-            $this->socket = stream_socket_client("tls://" . $this->address . ":" . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT, $socketContext);
+            $this->socket = stream_socket_client("tls://" . $this->address . ":" . $this->port, $errno,
+                $errStr, $this->socketTimeout, STREAM_CLIENT_CONNECT, $socketContext);
         } else {
-            $this->socket = stream_socket_client("tcp://" . $this->address . ":" . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT);
+            $this->socket = stream_socket_client("tcp://" . $this->address . ":" . $this->port, $errno,
+                $errStr, $this->socketTimeout, STREAM_CLIENT_CONNECT);
         }
 
-        if (!$this->socket) {
+        if ($this->socket === false) {
             $this->connected = false;
-            throw new ConnectException("stream_socket_create() $errno, $errstr \n");
+            throw new ConnectException("stream_socket_create() $errno, $errStr \n");
         }
 
         stream_set_timeout($this->socket, 5);
