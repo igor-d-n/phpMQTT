@@ -1,21 +1,18 @@
 {
-    "name": "bluerhinos/phpmqtt",
+    "name": "igor-d-n/phpmqtt",
     "description": "Simple MQTT Class",
     "license": "BSD",
     "type": "library",
     "authors": [
-        {
-            "name": "Andrew Milsted",
-            "email": "andrew@bluerhinos.co.uk"
-        }
+
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.4"
+        "php": ">=7.1"
     },
     "autoload": {
         "psr-4": {
-            "Bluerhinos\\": "./"
+            "SimpleMQTT\\": "./"
         }
     }
 }

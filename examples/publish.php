@@ -1,18 +1,20 @@
 <?php
 
-require("../phpMQTT.php");
+use SimpleMQTT\Publisher;
+use SimpleMQTT\ConnectException;
 
-$server = "mqtt.example.com";     // change if necessary
-$port = 1883;                     // change if necessary
-$username = "";                   // set your username
-$password = "";                   // set your password
-$client_id = "phpMQTT-publisher"; // make sure this is unique for connecting to sever - you could use uniqid()
+$server = "mqtt.example.com";
+$port = 1883;
+$username = "mqttUser";
+$password = "mqttPassword";
+$clientId = 'someUniqID'; // optional. Will be uniq if not specified
 
-$mqtt = new phpMQTT($server, $port, $client_id);
+$mqtt = new Publisher($server, $port, $clientId);
 
-if ($mqtt->connect(true, NULL, $username, $password)) {
-	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest", "Hello World! at " . date("r"), 0);
-	$mqtt->close();
-} else {
-    echo "Time out!\n";
+try{
+    $mqtt->connect($username, $password);
+    $mqtt->publish("example/publishtest", "Hello World at " . date("r"));
+    $mqtt->close();
+} catch (ConnectException $e){
+    echo "Connection problems: ". $e->getMessage();
 }
