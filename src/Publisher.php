@@ -131,20 +131,20 @@ class Publisher
         if ($this->username) $buffer .= $this->writeStringToBuffer($this->username, $i);
         if ($this->password) $buffer .= $this->writeStringToBuffer($this->password, $i);
 
-        $head = "  ";
-        $head{0} = chr(0x10);
-        $head{1} = chr($i);
+        $head = "";
+        $head .= chr(0x10);
+        $head .= chr($i);
 
         fwrite($this->socket, $head, 2);
         fwrite($this->socket, $buffer);
 
         $string = $this->read(4);
 
-        if (ord($string{0}) >> 4 == 2 && $string{3} == chr(0)) {
+        if (ord($string[0]) >> 4 == 2 && $string[3] == chr(0)) {
             if ($this->debug) echo "Connected to Broker\n";
         } else {
             $this->connected = false;
-            throw new ConnectException(sprintf("Connection failed! (Error: 0x%02x 0x%02x)\n", ord($string{0}), ord($string{3})));
+            throw new ConnectException(sprintf("Connection failed! (Error: 0x%02x 0x%02x)\n", ord($string[0]), ord($string[3])));
         }
         $this->connected = true;
     }
@@ -171,9 +171,9 @@ class Publisher
     // sends a proper disconnect, then closes the socket
     public function close()
     {
-        $head = " ";
-        $head{0} = chr(0xe0);
-        $head{1} = chr(0x00);
+        $head = '';
+        $head .= chr(0xe0);
+        $head .= chr(0x00);
         fwrite($this->socket, $head, 2);
         stream_socket_shutdown($this->socket, STREAM_SHUT_WR);
         $this->connected = false;
@@ -198,12 +198,12 @@ class Publisher
         $buffer .= $content;
         $i += strlen($content);
 
-        $head = " ";
         $cmd = 0x30;
         if ($qos) $cmd += $qos << 1;
         if ($retain) $cmd += 1;
 
-        $head{0} = chr($cmd);
+        $head = '';
+        $head .= chr($cmd);
         $head .= $this->setMsgLength($i);
 
         fwrite($this->socket, $head, strlen($head));
