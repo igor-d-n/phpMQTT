@@ -10,24 +10,24 @@ namespace SimpleMQTT;
 class Publisher
 {
 
-    protected $socket;            // holds the socket	
-    protected $msgId = 1;            // counter for message id 
-    protected $keepAlive = 10;        // default keepalive timer 
-    protected $socketTimeout = 5;    // timeout for waiting for socket tcp connection
-    protected $debug = false;        // should output debug messages 
-    protected $address;            // broker address 
+    protected $socket;              // holds the socket
+    protected $msgId = 1;           // counter for message id
+    protected $keepAlive = 10;      // default keepalive timer
+    protected $socketTimeout = 5;   // timeout for waiting for socket tcp connection
+    protected $debug = false;       // should output debug messages
+    protected $address;             // broker address
     protected $port;                // broker port
     protected $clientId;            // client id sent to broker 
-    protected $will;                // stores the will of the client 
-    protected $username;            // stores username 
-    protected $password;            // stores password 
+    protected $will;                // stores the will of the client
+    protected $username;            // stores username
+    protected $password;            // stores password
     protected $connected = false;
     protected $cafile;
 
     function __construct($address, $port, $clientId = null, $cafile = null)
     {
         if ($clientId === null) {
-            $clientId = uniqid('phpMQTT_');
+            $clientId = uniqid('phpMQTT_', true);
         }
         $this->address = $address;
         $this->port = $port;
@@ -76,9 +76,8 @@ class Publisher
 //        stream_set_blocking($this->socket, 0);
 
         $i = 0;
-        $buffer = "";
 
-        $buffer .= chr(0x00);
+        $buffer = chr(0x00);
         $i++;
         $buffer .= chr(0x06);
         $i++;
@@ -102,14 +101,14 @@ class Publisher
         if ($clean) $var += 2;
 
         //Add will info to header
-        if ($this->will != null) {
+        if ($this->will !== null) {
             $var += 4; // Set will flag
             $var += ($this->will['qos'] << 3); //Set will qos
             if ($this->will['retain']) $var += 32; //Set will retain
         }
 
-        if ($this->username != null) $var += 128;    //Add username to header
-        if ($this->password != null) $var += 64;    //Add password to header
+        if ($this->username !== null) $var += 128;    //Add username to header
+        if ($this->password !== null) $var += 64;    //Add password to header
 
         $buffer .= chr($var);
         $i++;
@@ -123,7 +122,7 @@ class Publisher
         $buffer .= $this->writeStringToBuffer($this->clientId, $i);
 
         //Adding will to payload
-        if ($this->will != null) {
+        if ($this->will !== null) {
             $buffer .= $this->writeStringToBuffer($this->will['topic'], $i);
             $buffer .= $this->writeStringToBuffer($this->will['msg'], $i);
         }
@@ -131,8 +130,7 @@ class Publisher
         if ($this->username) $buffer .= $this->writeStringToBuffer($this->username, $i);
         if ($this->password) $buffer .= $this->writeStringToBuffer($this->password, $i);
 
-        $head = "";
-        $head .= chr(0x10);
+        $head = chr(0x10);
         $head .= chr($i);
 
         fwrite($this->socket, $head, 2);
@@ -150,9 +148,9 @@ class Publisher
     }
 
     // reads in so many bytes
-    function read($length = 8192, $nb = false)
+    protected function read($length = 8192, $nb = false)
     {
-        $string = "";
+        $string = '';
         $togo = $length;
 		
         if ($nb) {
@@ -171,8 +169,7 @@ class Publisher
     // sends a proper disconnect, then closes the socket
     public function close()
     {
-        $head = '';
-        $head .= chr(0xe0);
+        $head = chr(0xe0);
         $head .= chr(0x00);
         fwrite($this->socket, $head, 2);
         stream_socket_shutdown($this->socket, STREAM_SHUT_WR);
@@ -183,9 +180,8 @@ class Publisher
     public function publish($topic, $content, $retain = 0, $qos = 0)
     {
         $i = 0;
-        $buffer = "";
 
-        $buffer .= $this->writeStringToBuffer($topic, $i);
+        $buffer = $this->writeStringToBuffer($topic, $i);
 
         if ($qos) {
             $id = $this->msgId++;
@@ -200,10 +196,9 @@ class Publisher
 
         $cmd = 0x30;
         if ($qos) $cmd += $qos << 1;
-        if ($retain) $cmd += 1;
+        if ($retain) ++$cmd;
 
-        $head = '';
-        $head .= chr($cmd);
+        $head = chr($cmd);
         $head .= $this->setMsgLength($i);
 
         fwrite($this->socket, $head, strlen($head));
@@ -215,10 +210,9 @@ class Publisher
         $string = "";
         do {
             $digit = $len % 128;
-            $len = $len >> 7;
+            $len >>= 7;
             // if there are more digits to encode, set the top bit of this digit
-            if ($len > 0)
-                $digit = ($digit | 0x80);
+            if ($len > 0) $digit |= 0x80;
             $string .= chr($digit);
         } while ($len > 0);
         return $string;
